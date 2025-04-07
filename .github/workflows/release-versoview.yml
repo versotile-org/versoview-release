@@ -143,7 +143,4 @@ jobs:
       - name: Publish release
         run: |
           RELEASE_TAG=versoview-v$(cargo metadata --format-version=1 --no-deps | jq -r '.packages[] | select(.name == "versoview") | .version')
-          git fetch --tags --quiet
-          if ! git show-ref --tags --verify --quiet "refs/tags/${RELEASE_TAG}" ; then
-            gh release create ${RELEASE_TAG} ./artifacts/*.tar.gz
-          fi
+          gh release create ${RELEASE_TAG} ./artifacts/*.tar.gz --repo versotile-org/versoview-release
