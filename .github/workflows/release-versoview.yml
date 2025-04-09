@@ -126,13 +126,13 @@ jobs:
 
       - name: Make archive
         working-directory: ./target/release
-        run: tar -czvf verso-aarch64-apple-darwin.tar.gz versoview
+        run: tar -czvf ${{ matrix.args}}.tar.gz versoview
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: verso-aarch64-apple-darwin
-          path: ./target/release/verso-aarch64-apple-darwin.tar.gz
+          name: verso-${{ matrix.args }}
+          path: ./target/release/${{ matrix.args }}.tar.gz
 
   publish-release:
     runs-on: ubuntu-latest
