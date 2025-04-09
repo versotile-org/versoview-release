@@ -34,7 +34,7 @@ jobs:
           nix-channel --update nixpkgs
 
       - name: Build
-        run: nix-shell shell.nix --run "nix-shell --packages zig cargo-zigbuild --run 'cargo zigbuild --target x86_64-unknown-linux-gnu.2.28 --release'"
+        run: nix-shell shell.nix --run "nix-shell --packages zig cargo-zigbuild --run 'cargo zigbuild --target x86_64-unknown-linux-gnu.2.31 --release'"
 
       - name: Make archive
         run: nix-shell shell.nix --run 'cd ./target/release && tar -czvf verso-x86_64-unknown-linux-gnu.tar.gz versoview'
