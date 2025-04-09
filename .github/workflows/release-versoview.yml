@@ -86,7 +86,16 @@ jobs:
           path: ./target/release/verso-x86_64-pc-windows-msvc.tar.gz
 
   build-mac:
-    runs-on: macos-latest
+    strategy: 
+      matrix:
+        platform:
+          - os: macos-13
+            rust_target: x86_64-apple-darwin
+            target: macos_x86_64
+          - os: macos-13
+            rust_target: aarch64-apple-darwin
+            target: macos_aarch64
+    runs-on: ${{ matrix.platform.os }} 
     steps:
       - uses: actions/checkout@v4
         with:
