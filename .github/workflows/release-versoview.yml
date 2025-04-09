@@ -7,6 +7,8 @@ env:
   RUST_BACKTRACE: 1
   CARGO_INCREMENTAL: 0
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  ZIG_VERSION: 0.14.0
+  ZIGBUILD_VERSION: 0.19.8
 
 jobs:
   build-linux:
@@ -16,28 +18,27 @@ jobs:
         with:
           repository: versotile-org/verso
 
-      - uses: nixbuild/nix-quick-install-action@v28
+      - name: Set env
+        run: echo "LIBCLANG_PATH=/usr/lib/llvm-14/lib" >> $GITHUB_ENV
 
-      - name: Restore and cache Nix store
-        uses: nix-community/cache-nix-action@v5
-        with:
-          paths: |
-            ~/.cargo
-            target/release/
-          primary-key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', 'Cargo.lock', 'Cargo.toml') }}
-          restore-prefixes-first-match: nix-${{ runner.os }}-
-          gc-max-store-size-linux: 1073741824
-
-      - name: Add Nix channel
+      - name: install dependencies
         run: |
-          nix-channel --add https://nixos.org/channels/nixos-24.05 nixpkgs
-          nix-channel --update nixpkgs
+          sudo apt update
+          sudo apt install -y libunwind-dev
+
+      - name: Install Zig toolchain
+        run: |
+          which cargo
+          curl -L "https://ziglang.org/download/${ZIG_VERSION}/zig-linux-$(uname -m)-${ZIG_VERSION}.tar.xz" | sudo tar JxC /usr/local
+          sudo ln -s "/usr/local/zig-linux-$(uname -m)-${ZIG_VERSION}/zig" /usr/local/bin/zig
+          curl -L "https://github.com/rust-cross/cargo-zigbuild/releases/download/v${ZIGBUILD_VERSION}/cargo-zigbuild-v${ZIGBUILD_VERSION}.x86_64-unknown-linux-musl.tar.gz" | tar zxC ~/.cargo/bin
 
       - name: Build
-        run: nix-shell shell.nix --run "nix-shell --packages zig cargo-zigbuild --run 'cargo zigbuild --target x86_64-unknown-linux-gnu.2.31 --release'"
+        run: cargo zigbuild --target x86_64-unknown-linux-gnu.2.31 --release
 
       - name: Make archive
-        run: nix-shell shell.nix --run 'cd ./target/release && tar -czvf verso-x86_64-unknown-linux-gnu.tar.gz versoview'
+        run: cd ./target/release && tar -czvf verso-x86_64-unknown-linux-gnu.tar.gz versoview
+
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
