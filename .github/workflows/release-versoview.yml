@@ -95,6 +95,11 @@ jobs:
           path: ./target/release/verso-x86_64-pc-windows-msvc.tar.gz
 
   build-mac:
+    strategy:
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+          - target: x86_64-apple-darwin
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -120,21 +125,24 @@ jobs:
           curl https://gstreamer.freedesktop.org/data/pkg/osx/1.24.6/gstreamer-1.0-devel-1.24.6-universal.pkg -o develop.pkg
           sudo installer -pkg develop.pkg -target /
 
+      - name: Add rust target
+        run: rustup target add ${{ matrix.target }}
+
       - name: Build
         env:
           SCCACHE_GHA_ENABLED: true
           RUSTC_WRAPPER: 'sccache'
-        run: cargo build --release
+        run: cargo build --target ${{ matrix.target }} --release
 
       - name: Make archive
-        working-directory: ./target/release
-        run: tar -czvf verso-aarch64-apple-darwin.tar.gz versoview
+        working-directory: ./target/${{ matrix.target }}/release
+        run: tar -czvf verso-${{ matrix.target }}.tar.gz versoview
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: verso-aarch64-apple-darwin
-          path: ./target/release/verso-aarch64-apple-darwin.tar.gz
+          name: verso-${{ matrix.target }}
+          path: ./target/${{ matrix.target }}/release/verso-${{ matrix.target }}.tar.gz
 
   publish-release:
     runs-on: ubuntu-latest
