@@ -142,7 +142,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: verso-${{ matrix.target }}
-          path: ./target/release/verso-${{ matrix.target }}.tar.gz
+          path: ./target/${{ matrix.target }}/release/verso-${{ matrix.target }}.tar.gz
 
   # publish-release:
   #   runs-on: ubuntu-latest
