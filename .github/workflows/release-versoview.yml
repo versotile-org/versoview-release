@@ -98,10 +98,8 @@ jobs:
     strategy: 
       matrix:
         include:
-          - platform: 'macos-latest'
-            args: '--target aarch64-apple-darwin'
-          - platform: 'macos-latest'
-            args: '--target x86_64-apple-darwin'
+          - args: '--target aarch64-apple-darwin'
+          - args: '--target x86_64-apple-darwin'
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -119,7 +117,7 @@ jobs:
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+          targets: ${{ matrix.args }}
 
       - name: Install mako
         run: python -m pip install mako
@@ -136,7 +134,7 @@ jobs:
         env:
           SCCACHE_GHA_ENABLED: true
           RUSTC_WRAPPER: 'sccache'
-        run: cargo build --release
+        run: cargo build --target ${{ matrix.args' }} --release
 
       - name: Make archive
         working-directory: ./target/release
