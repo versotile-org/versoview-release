@@ -98,11 +98,9 @@ jobs:
     strategy: 
       matrix:
         include:
-          - platform: 'macos-14' 
-            args: '--target aarch64-apple-darwin'
-          - platform: 'macos-14' 
-            args: '--target x86_64-apple-darwin'
-    runs-on: ${{ matrix.platform }} 
+          - target: aarch64-apple-darwin
+          - target: x86_64-apple-darwin
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -131,17 +129,17 @@ jobs:
         env:
           SCCACHE_GHA_ENABLED: true
           RUSTC_WRAPPER: 'sccache'
-        run: cargo build --release
+        run: cargo build --target ${{ matrix.target }} --release
 
       - name: Make archive
         working-directory: ./target/release
-        run: tar -czvf verso-${{ matrix.args}}.tar.gz versoview
+        run: tar -czvf verso-${{ matrix.target }}.tar.gz versoview
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: verso-${{ matrix.args }}
-          path: ./target/release/verso-${{ matrix.args }}.tar.gz
+          name: verso-${{ matrix.target }}
+          path: ./target/release/verso-${{ matrix.target }}.tar.gz
 
   publish-release:
     runs-on: ubuntu-latest
