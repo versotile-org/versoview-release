@@ -98,8 +98,8 @@ jobs:
     strategy: 
       matrix:
         include:
-          - args: '--target aarch64-apple-darwin'
-          - args: '--target x86_64-apple-darwin'
+          - target: aarch64-apple-darwin
+          - target: x86_64-apple-darwin
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -117,7 +117,7 @@ jobs:
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.args }}
+          targets: ${{ matrix.target }}
 
       - name: Install mako
         run: python -m pip install mako
@@ -134,17 +134,17 @@ jobs:
         env:
           SCCACHE_GHA_ENABLED: true
           RUSTC_WRAPPER: 'sccache'
-        run: cargo build --target ${{ matrix.args' }} --release
+        run: cargo build --target ${{ matrix.target' }} --release
 
       - name: Make archive
         working-directory: ./target/release
-        run: tar -czvf verso${{ matrix.args }}.tar.gz versoview
+        run: tar -czvf verso${{ matrix.target }}.tar.gz versoview
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: verso${{ matrix.args }}
-          path: ./target/release/verso${{ matrix.args }}.tar.gz
+          name: verso${{ matrix.target }}
+          path: ./target/release/verso${{ matrix.target }}.tar.gz
 
   publish-release:
     runs-on: ubuntu-latest
