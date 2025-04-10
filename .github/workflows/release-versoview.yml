@@ -134,7 +134,7 @@ jobs:
         env:
           SCCACHE_GHA_ENABLED: true
           RUSTC_WRAPPER: 'sccache'
-        run: cargo build --target ${{ matrix.target' }} --release
+        run: cargo build --target ${{ matrix.target }} --release
 
       - name: Make archive
         working-directory: ./target/release
