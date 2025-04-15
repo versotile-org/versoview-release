@@ -160,8 +160,12 @@ jobs:
           merge-multiple: true
           path: artifacts
 
+      - name: Get version
+        id: get-version
+        run: echo "RELEASE_TAG=versoview-v$(cargo metadata --format-version=1 --no-deps | jq -r '.packages[] | select(.name == "versoview") | .version')" >> "$GITHUB_OUTPUT"
+
+      - name: Delete old release
+        run: gh release delete ${{ steps.get-version.outputs.RELEASE_TAG }} --repo versotile-org/versoview-release --yes
+
       - name: Publish release
-        run: |
-          RELEASE_TAG=versoview-v$(cargo metadata --format-version=1 --no-deps | jq -r '.packages[] | select(.name == "versoview") | .version')
-          gh release delete ${RELEASE_TAG} --repo versotile-org/versoview-release --yes
-          gh release create ${RELEASE_TAG} --repo versotile-org/versoview-release ./artifacts/*.tar.gz
+        run: gh release create ${{ steps.get-version.outputs.RELEASE_TAG }} --repo versotile-org/versoview-release ./artifacts/*.tar.gz
