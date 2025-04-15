@@ -165,6 +165,7 @@ jobs:
         run: echo "RELEASE_TAG=versoview-v$(cargo metadata --format-version=1 --no-deps | jq -r '.packages[] | select(.name == "versoview") | .version')" >> "$GITHUB_OUTPUT"
 
       - name: Delete old release
+        continue-on-error: true
         run: gh release delete ${{ steps.get-version.outputs.RELEASE_TAG }} --repo versotile-org/versoview-release --yes
 
       - name: Publish release
